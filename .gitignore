@@ -1,0 +1,6 @@
+/target
+/Cargo.lock
+*.log
+*.sst
+table_write
+test_dir
