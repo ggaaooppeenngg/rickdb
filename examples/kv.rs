@@ -1,4 +1,5 @@
 use rickdb::{db::DB, options::Options};
+use std::fs;
 use std::io;
 
 fn main() -> io::Result<()> {
@@ -8,6 +9,7 @@ fn main() -> io::Result<()> {
     let db = DB::new("./test", Options::default()).unwrap();
     let v = db.get(b"a").unwrap();
     println!("value {:?}", v);
+    let _ = fs::remove_dir_all("./test");
     Ok(())
 }
 

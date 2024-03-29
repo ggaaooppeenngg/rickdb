@@ -3,15 +3,10 @@ use crate::options::Options;
 use crate::table::TableBuilder;
 use crate::version::{FileMetadata, VersionEdit, VersionSet};
 use anyhow::Result;
-
-use itertools::Itertools;
-
 use std::fs::{self};
-
 use std::path::{Path, PathBuf};
-
 use std::sync::Arc;
-use std::{io::Read, rc::Rc, sync::RwLock};
+use std::{rc::Rc, sync::RwLock};
 
 use super::batch::Batch;
 use super::key::{InternalKey, InternalKeyKind};
@@ -167,8 +162,8 @@ impl DB {
     }
     fn maybe_do_compactiion(&mut self) -> Result<()> {
         if !self.shared_state.read().unwrap().imm.is_empty() {
-            let mut ve = VersionEdit::new();            // imm not empyt, write to l0 level.
-            // compact memtable
+            let mut ve = VersionEdit::new(); // imm not empyt, write to l0 level.
+                                             // compact memtable
             self.write_to_l0_table(&mut ve)?;
             ve.set_log_number(self.shared_state.read().unwrap().vs.log_num); // TODO: plus one?
             ve.set_next_file(self.shared_state.read().unwrap().vs.next_file_num);
@@ -181,6 +176,7 @@ impl DB {
         compactor.start_compaction(&mut write_guard.vs);
         Ok(())
     }
+    #[allow(unused)]
     fn manual_compact(&mut self) -> Result<()> {
         debug!("manually compact");
         self.maybe_do_compactiion()
@@ -193,7 +189,8 @@ impl DB {
         let mut file = fs::OpenOptions::new()
             .write(true)
             .create(true)
-            .open(&self.db_path.join(format!("{}.sst", file_num)))?;
+            .truncate(true)
+            .open(self.db_path.join(format!("{}.sst", file_num)))?;
         let mut builder = TableBuilder::new(&mut file, self.opt);
         for (k, v) in imm.iter() {
             builder.add(&k.clone().encode(), v)?;

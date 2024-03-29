@@ -12,8 +12,12 @@ use std::io::{Read, Seek, Write};
 use std::iter::Peekable;
 use std::rc::Rc;
 use thiserror::Error;
+
+#[allow(unused)]
 pub const RESTART_INTERVAL: usize = 32;
+#[allow(unused)]
 pub const BLOCK_SIZE: usize = 4096;
+#[allow(unused)]
 pub const FILTER_BITS_PER_KEY: usize = 10;
 
 // offset, size
@@ -253,9 +257,8 @@ pub enum Errors {
     InvalidStoreFile,
     #[error("block not found: {0}")]
     BlockNotFound(String),
-    #[error("invalid checksum")]
-    ChecksumError,
-
+    // #[error("invalid checksum")]
+    // ChecksumError,
     /// Represents all other cases of `std::io::Error`.
     #[error(transparent)]
     IOError(#[from] std::io::Error),
@@ -285,13 +288,15 @@ impl<'a, T: Read + Seek + 'a> Table<T> {
             opt: self.opt,
         })
     }
+    #[allow(unused)]
     pub fn size(&self) -> usize {
         self.total_size
     }
+    #[allow(unused)]
     pub fn smallest(&mut self) -> Option<Vec<u8>> {
         self.iter().next().map(|(k, _v)| k)
     }
-
+    #[allow(unused)]
     pub fn biggest(&mut self) -> Option<Vec<u8>> {
         self.index_block
             .clone()

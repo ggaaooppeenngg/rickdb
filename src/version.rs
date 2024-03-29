@@ -12,12 +12,13 @@ use std::collections::{BTreeSet, HashSet, LinkedList};
 
 use std::fs::OpenOptions;
 use std::io::{self, Write};
-use std::path::{PathBuf};
+use std::path::PathBuf;
 use std::rc::Rc;
 
 pub(crate) const NUM_OF_LEVELS: usize = 7;
 
 pub const MANIFEST_FILE: &str = "MANIFEST";
+#[allow(unused)]
 pub const MANIFEST_REWRITE_FILE: &str = "MANIFEST-REWRITE";
 #[derive(Clone, Debug, Hash, Eq, PartialEq, PartialOrd, Ord)]
 pub struct FileMetadata {
@@ -164,7 +165,7 @@ impl VersionEdit {
         while pos < buf.len() {
             let record_id = buf[pos];
             pos += 1;
-            debug!("record id {}",record_id);
+            debug!("record id {}", record_id);
             match record_id.into() {
                 RecordID::DeleteFile => {
                     let (level, bytes_read) = u32::decode_var(&buf[pos..]).unwrap();
@@ -218,7 +219,7 @@ impl VersionEdit {
                     edit.last_sequence = last_sequence as u64;
                 }
                 RecordID::Unknow => {
-                    panic!("Unknown RecordID {}",record_id);
+                    panic!("Unknown RecordID {}", record_id);
                 }
             }
         }
@@ -312,6 +313,7 @@ pub struct VersionSet {
     current: Rc<Version>,
     versios: LinkedList<Rc<Version>>,
     pub table_cache: TableCache,
+    #[allow(unused)]
     opt: Options,
 }
 
@@ -412,9 +414,8 @@ impl<'a> VersionSet {
         builder.save_to(&mut v);
         let mut writer = RecordWriter::new(
             OpenOptions::new()
-                .write(true)
                 .append(true)
-                .open(self.db_path.join(MANIFEST_FILE))?
+                .open(self.db_path.join(MANIFEST_FILE))?,
         );
         writer.write_record(&edit.encode())?;
         writer.flush()?;
@@ -493,9 +494,9 @@ mod tests {
         Ok(())
     }
     #[test]
-    fn test_version_builder(){
+    fn test_version_builder() {
         let mut v = Version::new();
-        v.files[0]=vec![Rc::new(FileMetadata{
+        v.files[0] = vec![Rc::new(FileMetadata {
             num: 1,
             size: 100,
             smallest: InternalKey::new(b"a", 0, InternalKeyKind::Value),
@@ -506,17 +507,20 @@ mod tests {
         let mut edit = VersionEdit::new();
 
         edit.delete_file(0, 1);
-        edit.add_file(1, Rc::new(FileMetadata{
-            num: 1,
-            size: 100,
-            smallest: InternalKey::new(b"a", 0, InternalKeyKind::Value),
-            largest: InternalKey::new(b"z", 0, InternalKeyKind::Value),
-            ..Default::default()
-        }));
+        edit.add_file(
+            1,
+            Rc::new(FileMetadata {
+                num: 1,
+                size: 100,
+                smallest: InternalKey::new(b"a", 0, InternalKeyKind::Value),
+                largest: InternalKey::new(b"z", 0, InternalKeyKind::Value),
+                ..Default::default()
+            }),
+        );
         vb.apply(&edit);
         let mut v2 = Version::new();
         vb.save_to(&mut v2);
-        assert_eq!(v2.files[0].len(),0);
-        assert_eq!(v2.files[1].len(),1);
+        assert_eq!(v2.files[0].len(), 0);
+        assert_eq!(v2.files[1].len(), 1);
     }
 }

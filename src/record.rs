@@ -1,4 +1,3 @@
-
 use std::io::{self, BufWriter, Read, Result, Write};
 const BLOCK_SIZE: usize = 32 * 1024;
 const HEADER_SIZE: usize = 4 + 2 + 1; // checksum + length + type
@@ -89,6 +88,7 @@ impl<R: Read> RecordReader<R> {
         }
     }
 
+    #[allow(unused)]
     pub fn records(&mut self) -> Result<Vec<Vec<u8>>> {
         let mut records = vec![];
         loop {
