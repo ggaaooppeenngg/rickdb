@@ -53,7 +53,7 @@ impl DB {
             .for_each(|record| {
                 let batch = Batch::from(record);
                 let mut seq = batch.get_seqnum();
-                seq = seq.saturating_sub(1);
+                seq = seq.wrapping_add(1);
                 batch.iter().for_each(|(key, value, kind)| {
                     if kind == InternalKeyKind::Value as u8 {
                         let search_key = InternalKey::new(key, seq, InternalKeyKind::Value);
